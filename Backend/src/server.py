@@ -12,8 +12,8 @@ from src.room import Room
 from src.user import User
 
 app = Flask(__name__)
-CORS(app)
-socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5173"])
+CORS(app, resources={r"/*": {"origins": "http://170.64.131.63:5173"}})
+socketio = SocketIO(app, cors_allowed_origins=["http://170.64.131.63:5173"])
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")

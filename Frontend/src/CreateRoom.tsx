@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { socket } from "./socket"
 
 const API_URL = import.meta.env.VITE_API_URL;
+// const API_URL = 'http://170.64.131.63:5050';
 
 const handleCreateRoom = async (
   roomName: string, 
@@ -19,6 +20,7 @@ const handleCreateRoom = async (
     alert("Room name cannot exceed 16 characters");
     return;
   }
+  console.log(API_URL);
 
   const response = await fetch(`${API_URL}/room/create`, {
     method: "POST",
@@ -47,8 +49,8 @@ const handleCreateRoom = async (
     navigate(`/room/${roomId}`);
   });
 
-  socket.once("room_join_failure", () => {
-    alert('Failed to join room');
+  socket.once("room_join_failure", (message) => {
+    alert(`Failed to join room: ${message.message}`);	
   });
 };
 
