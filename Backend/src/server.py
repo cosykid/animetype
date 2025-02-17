@@ -12,7 +12,7 @@ from src.room import Room
 from src.user import User
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+CORS(app)
 socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5173"])
 
 load_dotenv()
