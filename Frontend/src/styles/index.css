@@ -1,0 +1,195 @@
+/* Set the entire application's background color to black and text color to white */
+@font-face {
+  font-family: 'genshinimpact'; /* Custom name */
+  src: url('/genshin.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'genshinimpact', Arial, sans-serif;
+  color: white;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('/genshin.png?v=1') no-repeat center center;
+  background-size: cover;
+  filter: blur(4px); /* Adjust the blur intensity */
+  z-index: -1; /* Send it behind all content */
+  transform: scale(1.1); /* Expands the image */
+}
+
+#root {
+  text-align: center;
+}
+
+/* Center content on the page */
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Style headings */  
+h1, h2, h3 {
+  margin: 10px 0;
+  color: white;
+}
+
+/* Style inputs */
+input {
+  margin: 5px 0;
+  padding: 10px;
+  border: 1px solid rgb(176, 206, 222);
+  border-radius: 5px;
+  background-color: rgb(202, 237, 254);
+  color: rgb(0, 0, 0);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+input::placeholder {
+  color: #505050;
+}
+
+/* Style buttons */
+button {
+  padding: 10px 15px;
+  margin: 10px;
+  background-color: rgb(202, 237, 254);
+  color: rgb(58, 58, 58);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.6); /* Shadow effect */
+}
+
+button:hover {
+  background-color: rgb(169, 198, 213);
+}
+
+.join-button {
+  background-color: rgb(255, 255, 255);
+}
+
+.join-button:hover {
+  background-color: rgb(194, 194, 194);
+}
+
+.refresh-button {
+  background-color: rgb(161, 205, 249);
+  margin-top: '10px'
+}
+
+.refresh-button:hover {
+  background-color: rgb(143, 182, 220);
+}
+
+
+/* Style error and loading messages */
+p {
+  margin: 10px 0;
+}
+
+/* Style room list */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li span {
+  margin-right: 10px;
+}
+
+.player-list {
+  margin: 10px 0;
+  background-color: rgb(157, 156, 156);  /* Light gray background */
+  margin-bottom: 15px;         /* Spacing between rooms */
+  padding: 15px;               /* Padding inside the box */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 1s; /* Add transition for background */
+  width: 30vw;
+  
+  /* Gradient for fading the left and right sides */
+  background: linear-gradient(to right, rgba(157, 156, 156, 0), rgba(157, 156, 156, 0.2), rgb(157, 156, 156), rgba(157, 156, 156, 0.2), rgba(157, 156, 156, 0));
+  background-clip: padding-box; /* Ensure the background gradient doesn't affect border-radius */
+  -webkit-background-clip: padding-box; /* For Safari */
+}
+
+.player-list:hover {
+  transform: translateY(-5px); /* Hover effect - lifts the box */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+  
+  /* Remove the gradient on hover */
+  background-color: rgb(157, 156, 156);  /* Solid color on hover */
+}
+
+.room-list {
+  margin: 10px 0;
+  background-color: rgb(51, 51, 51);  /* Light gray background */
+  margin-bottom: 15px;         /* Spacing between rooms */
+  padding: 15px;               /* Padding inside the box */
+  display: flex;
+  border-radius: 10px;
+  justify-content: space-between;
+  align-items: center;
+  width: 30vw;
+}
+
+#quote-box, #leaderboard {
+  background-color: rgba(205, 229, 255, 0.7);
+  width: 1000px;
+  padding: 20px;
+  border-radius: 20px;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.3rem;
+  line-height: 1.8;
+  color: black;
+  text-shadow: none;
+}
+
+#leaderboard h2 {
+  color: black;
+  line-height: 1;
+}
+
+
+#game-input {
+  margin: 15px;
+  font-size: 1.3rem;
+}
+
+#game-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; 
+  height: 100vh;
+  text-align: center;
+}
+
+.correct {
+  color: rgb(0, 131, 0);
+}
+.incorrect {
+  background-color: red; 
+  color: white;
+}
+
+.neutral {
+  color: gray;
+}
