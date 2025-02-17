@@ -41,6 +41,7 @@ const Game = ({ username }: { username: string }) => {
   };
 
   useEffect(() => {
+    if (!sessionStorage.getItem("roomId")) navigate('/')
     getQuote();
     if (sessionStorage.getItem('roomId') != roomId) {
       navigate("/")
