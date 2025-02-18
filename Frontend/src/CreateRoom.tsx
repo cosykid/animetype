@@ -50,9 +50,7 @@ const handleCreateRoom = async (
   });
 
   socket.once("room_join_failure", (message) => {
-    alert(message.message);
-    alert(message.rooms);
-    alert(`Fail to join room: ${message.message}`);
+    alert(`Cannot join room: ${message.message}`);
   });
 };
 
