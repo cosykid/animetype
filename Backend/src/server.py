@@ -61,10 +61,12 @@ def createRoom():
 
 @app.route('/room/<int:room_id>', methods=['GET'])
 def get_users(room_id):
+    if room_id is None:
+        return jsonify({'message': 'wheres ur id son'}), 404
     room = getRoomById(room_id)
 
     if room is None:
-        return jsonify({'message': 'Room not found'}), 404
+        return jsonify({'message': rooms}), 404
     
     if room.isGameInProgress:
         return jsonify({'message': 'Game already in progress'}), 409
@@ -137,7 +139,7 @@ def on_join(data):
     room = getRoomById(room_id)
 
     if room is None:
-        emit('room_join_failure', {'message': 'Room not found'}, to=request.sid)
+        emit('room_join_failure', {'message': room_id, 'rooms': rooms}, to=request.sid)
         return
     
     if room.isGameInProgress:

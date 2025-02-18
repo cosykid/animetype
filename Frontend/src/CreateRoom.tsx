@@ -41,8 +41,8 @@ const handleCreateRoom = async (
 
   const data = await response.json();
   const roomId : number = data.room_id;
-
-  socket.emit("join", { 'username': username, 'room_id': roomId });
+  console.log('GOOD ' + data.message);
+  setTimeout(() => {socket.emit("join", { 'username': username, 'room_id': roomId })}, 1000);
 
   // Listen for confirmation before navigating
   socket.once("room_join_success", () => {
@@ -50,7 +50,9 @@ const handleCreateRoom = async (
   });
 
   socket.once("room_join_failure", (message) => {
-    alert(`Failed to join room: ${message.message}`);	
+    alert(message.message);
+    alert(message.rooms);
+    alert(`Fail to join room: ${message.message}`);
   });
 };
 
