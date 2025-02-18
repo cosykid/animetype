@@ -7,6 +7,8 @@ from flask_cors import CORS
 from typing import List
 from threading import Timer
 from dotenv import load_dotenv
+import redis
+import json
 
 from src.room import Room
 from src.user import User
@@ -19,11 +21,21 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 API_BASE_URL = "https://animechan.io/api/v1/quotes/random"
 
-rooms: List[Room] = []
+# Connect to Redis (Assuming it's on localhost)
+redis_client = redis.Redis(host='localhost', port=6379, decode_responses=True)
+
 lock = threading.Lock()
 
 def getRoomById(id: int):
+    rooms = load_rooms()
     return next((room for room in rooms if room.id == id), None)
+
+def save_rooms(rooms: List[Room]):
+    redis_client.set('rooms', json.dumps([room.to_dict() for room in rooms]))
+
+def load_rooms():
+    data = redis_client.get('rooms')
+    return [Room.from_dict(room) for room in json.loads(data)] if data else []
 
 ####################################################################
 ############################## ROUTES ##############################
@@ -33,12 +45,9 @@ def getRoomById(id: int):
 def home():
     return 'Welcome to the backend!'
 
-@app.route('/rooms/debug', methods=['GET'])
-def debug_rooms():
-    return jsonify([room.getRoomSummary() for room in rooms])
-
 @app.route('/rooms/', methods=['GET'])
 def getRoomList():
+    rooms = load_rooms()
     return jsonify([room.getRoomSummary() for room in rooms if not room.isGameInProgress])
 
 @app.route('/room/create', methods=['POST'])
@@ -54,23 +63,22 @@ def createRoom():
         return jsonify({'message': 'Capacity cannot be less than 3'}), 400
 
     with lock:
-        # Find the smallest available ID for the room
+        rooms = load_rooms()
         new_id = 1
         while any(room.id == new_id for room in rooms):
             new_id += 1
         newRoom = Room(new_id, capacity, name)
         rooms.append(newRoom)
+        save_rooms(rooms)
 
     return jsonify({'room_id': newRoom.id, 'message': 'Room created successfully'}), 201
 
 @app.route('/room/<int:room_id>', methods=['GET'])
 def get_users(room_id):
-    if room_id is None:
-        return jsonify({'message': 'wheres ur id son'}), 404
     room = getRoomById(room_id)
 
     if room is None:
-        return jsonify({'message': rooms}), 404
+        return jsonify({'message': 'Room not found'}), 404
     
     if room.isGameInProgress:
         return jsonify({'message': 'Game already in progress'}), 409
@@ -104,14 +112,14 @@ def game_start(room_id):
         room = getRoomById(room_id)
         room.quote = quote
         room.startGame()
-        threading.Timer(300, lambda: rooms.remove(room)).start()
+        threading.Timer(300, lambda: remove_room(room)).start()
         
         socketio.emit('game_start' , to=room_id)
         return "", 200
     except Exception as e:
         print(f"Error fetching quote: {e} for room {room_id}")
         return "", 500
-    
+
 @app.route('/room/<int:room_id>/content', methods=['GET'])
 def get_quote(room_id):
     try:
@@ -121,15 +129,15 @@ def get_quote(room_id):
         print(f"Error getting content: {e} for room {room_id}")
         return "", 500
 
+def remove_room(room: Room):
+    rooms = load_rooms()
+    rooms.remove(room)
+    save_rooms(rooms)
+
 ####################################################################
 ######################## SOCKETS ########################
 ####################################################################
 
-'''
-If the client refreshes their page, it triggers a disconnect
-so disconnect_timers keeps track of players of players who have
-disconnected in the last 'x' seconds and lets them join back
-'''
 disconnect_grace_period = 2
 disconnect_timers = {}
 
@@ -143,7 +151,7 @@ def on_join(data):
     room = getRoomById(room_id)
 
     if room is None:
-        emit('room_join_failure', {'message': room_id, 'rooms': rooms}, to=request.sid)
+        emit('room_join_failure', {'message': 'Room not found'}, to=request.sid)
         return
     
     if room.isGameInProgress:
@@ -178,7 +186,7 @@ def on_leave(data):
     leave_room(room_id)
     emit('room_users_update', room.getRoomLobby() , to=room_id)
     if room.isEmpty():
-        rooms.remove(room)
+        remove_room(room)
 
 @socketio.on('connect')
 def handle_connect():
@@ -195,7 +203,6 @@ def handle_reload(data):
     print(username, 'reloaded')
 
     def delayed_disconnect():
-        # If the user reconnected, don't remove them
         if (room_id, username) not in disconnect_timers:
             return
 
@@ -204,12 +211,11 @@ def handle_reload(data):
                 room.removeUser(username)
                 socketio.emit('room_users_update', room.getRoomLobby() , to=room.id)
                 if room.isEmpty():
-                    rooms.remove(room)
+                    remove_room(room)
                 break
 
         del disconnect_timers[(room_id, username)]  # Clean up
 
-    # Store the disconnect task
     timer = Timer(disconnect_grace_period, delayed_disconnect)
     timer.start()
     disconnect_timers[(room_id, username)] = timer
@@ -229,9 +235,8 @@ def handle_left_game(data):
             room.removeUser(username)
             socketio.emit('room_users_update', room.getRoomLobby() , to=room.id)
             if room.isEmpty():
-                rooms.remove(room)
+                remove_room(room)
             break
-
 
 @socketio.on('finish')  # end of a game
 def handle_end(data):
@@ -247,7 +252,6 @@ def handle_end(data):
     
     room.setUserWpm(wpm, username)
     emit('update_leaderboard', room.getLeaderboard(), to=room_id)
-
 
 if __name__ == '__main__':
     socketio.run(app, host="0.0.0.0", port=5050)
