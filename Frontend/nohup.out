@@ -1,0 +1,18 @@
+
+> frontend@0.0.0 dev
+> vite
+
+
+  VITE v6.0.7  ready in 294 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://170.64.131.63:5173/
+  ➜  Network: http://10.49.0.6:5173/
+  ➜  Network: http://10.126.0.3:5173/
+npm ERR! path /root/animetype/Frontend
+npm ERR! command failed
+npm ERR! signal SIGHUP
+npm ERR! command sh -c vite
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /root/.npm/_logs/2025-02-18T06_54_06_960Z-debug-0.log

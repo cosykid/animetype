@@ -12,5 +12,7 @@ services:
     build:
       context: ./Backend
       dockerfile: Dockerfile
+    volumes:
+      - ./Backend/src:/app/src
     ports:
       - "5050:5050"

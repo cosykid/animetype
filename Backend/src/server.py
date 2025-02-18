@@ -8,8 +8,8 @@ from typing import List
 from threading import Timer
 from dotenv import load_dotenv
 
-from room import Room
-from user import User
+from src.room import Room
+from src.user import User
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://170.64.131.63:5173"}})
@@ -32,6 +32,10 @@ def getRoomById(id: int):
 @app.route('/')
 def home():
     return 'Welcome to the backend!'
+
+@app.route('/rooms/debug', methods=['GET'])
+def debug_rooms():
+    return jsonify([room.getRoomSummary() for room in rooms])
 
 @app.route('/rooms/', methods=['GET'])
 def getRoomList():
