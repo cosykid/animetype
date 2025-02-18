@@ -3,6 +3,9 @@ services:
     build:
       context: ./Frontend
       dockerfile: Dockerfile
+    volumes:
+      - ./Frontend/src:/app/src
+      - /app/node_modules
     ports:
       - "5173:80"
   backend:

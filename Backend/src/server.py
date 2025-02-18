@@ -8,8 +8,8 @@ from typing import List
 from threading import Timer
 from dotenv import load_dotenv
 
-from src.room import Room
-from src.user import User
+from room import Room
+from user import User
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://170.64.131.63:5173"}})
