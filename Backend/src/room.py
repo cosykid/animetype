@@ -12,7 +12,19 @@ class Room:
         self.isGameInProgress = False
         self.owner = ''
         self.quote = None
-    
+
+    def to_dict(self) -> dict:
+	with self.lock:
+		return {
+                	"id": self.id,
+                	"capacity": self.capacity,
+                	"name": self.name,
+                	"users": [user.to_dict() for user in self.users],  # Convert users to dicts
+			"isGameInProgress": self.isGameInProgress,
+                	"owner": self.owner,
+                	"quote": self.quote
+            	}
+
     def removeUser(self, username: str):
         with self.lock:
             for user in self.users:

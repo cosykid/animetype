@@ -22,7 +22,7 @@ API_KEY = os.getenv("API_KEY")
 API_BASE_URL = "https://animechan.io/api/v1/quotes/random"
 
 # Connect to Redis (Assuming it's on localhost)
-redis_client = redis.Redis(host='localhost', port=6379, decode_responses=True)
+redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
 
 lock = threading.Lock()
 
@@ -35,7 +35,30 @@ def save_rooms(rooms: List[Room]):
 
 def load_rooms():
     data = redis_client.get('rooms')
-    return [Room.from_dict(room) for room in json.loads(data)] if data else []
+    if data is None:
+        return []
+    
+    rooms_data = json.loads(data)
+    rooms = []
+
+    for room_data in rooms_data:
+        room = Room(
+            id=room_data["id"],
+            capacity=room_data["capacity"],
+            name=room_data["name"]
+        )
+        room.isGameInProgress = room_data["isGameInProgress"]
+        room.owner = room_data["owner"]
+        room.quote = room_data["quote"]
+        room.users = [User(user["username"]) for user in room_data["users"]]
+        
+        # Restore WPM values
+        for user, user_data in zip(room.users, room_data["users"]):
+            user.wpm = user_data["wpm"]
+        
+        rooms.append(room)
+
+    return rooms
 
 ####################################################################
 ############################## ROUTES ##############################
