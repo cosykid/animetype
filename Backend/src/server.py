@@ -224,6 +224,7 @@ def handle_reload(data):
     room_id = int(data['room_id'])
     username = data['username']
     print(username, 'reloaded')
+    rooms = load_rooms()
 
     def delayed_disconnect():
         if (room_id, username) not in disconnect_timers:
@@ -248,10 +249,7 @@ def handle_left_game(data):
     room_id = int(data['room_id'])
     username = data['username']
     print(f'User {username} left the game')
-    room = getRoomById(room_id)
-    if room is None:
-        print('room doesnt even exist lol')
-        return
+    rooms = load_rooms()
     
     for room in rooms:
         if room.id == room_id and room.hasUser(username):
